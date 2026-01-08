@@ -1,0 +1,11 @@
+{
+    "course": "Open source Web Development",
+    "instructor": "Chris Southey",
+    "topics":[
+        "Node.js",
+        "Express.js",
+        "REST APIs",
+        "JSON",
+        "Fetch"
+    ]
+}

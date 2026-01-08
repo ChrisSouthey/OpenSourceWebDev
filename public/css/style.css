@@ -1,0 +1,10 @@
+body{
+    background-color: #202024;
+    display: flex;
+    justify-content: center;
+    color: white
+}
+
+.bg{
+    background-color: #bf0000;
+}

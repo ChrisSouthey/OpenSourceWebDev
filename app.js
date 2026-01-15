@@ -1,11 +1,34 @@
 const express = require('express');
 const path = require('path');
+const mongoose = require('mongoose');
+require('dotenv').config();
 const fs = require('fs');
+const strict = require('assert/strict');
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
+const MONGO_URI = process.env.MONGO_URI;
+
+if (!MONGO_URI) {
+    console.error("Missing connection data");
+    process.exit(1);
+}
 
 //Servers static files
 app.use(express.static(path.join(__dirname, 'public')));
+
+app.use(express.json());
+
+
+async function connectToMongo(){
+    try{
+        await mongoose.connect(MONGO_URI);
+        console.log("Connected to MongoDB");
+    }
+    catch(err){
+        console.error("Failed to connect to MongoDB: ", err.message);
+        process.exit(1);
+    }
+};
 
 //Basic get route
 app.get("/", (req, res) => {
@@ -32,6 +55,7 @@ app.get("/api/data", (req, res) => {
     });
 });
 
+//Course route
 app.get("/api/course", (req, res) => {
     fs.readFile("data.json", "utf-8", (err, data) => {
         //If failed
@@ -43,7 +67,32 @@ app.get("/api/course", (req, res) => {
     });
 });
 
-//route for running server
-app.listen(port, () => {
-    console.log(`Server is running on port: ${port}`);
+app.get("/api/games/:game", async (req, res) => {
+    console.log(req.params.game);
+    const ginfo = req.params.game;
+    const gameInfo = await Games.findOne({game:ginfo});
+    console.log(gameInfo);
+    res.json(gameInfo);
+    
+});
+
+
+//Routes for database
+const videogames = new mongoose.Schema({},{strict:false});
+const Games = new mongoose.model("videogames", videogames);
+
+app.get("/api/games", async (req, res) => {
+    const data = await Games.find();
+    console.log(data);
+    res.json(data);
+});
+    
+
+
+
+connectToMongo().then(() => {
+    //route for running server
+    app.listen(port, () => {
+        console.log(`Server is running on port: ${port}`);
+    });
 });
